@@ -454,17 +454,18 @@ class PHPExcel_Reader_Excel2007 extends PHPExcel_Reader_Abstract implements PHPE
 
                     $sharedStrings = array();
                     $xpath = self::getArrayItem($relsWorkbook->xpath("rel:Relationship[@Type='http://schemas.openxmlformats.org/officeDocument/2006/relationships/sharedStrings']"));
-                    $xmlStrings = simplexml_load_string($this->securityScan($this->getFromZipArchive($zip, "$dir/$xpath[Target]")), 'SimpleXMLElement', PHPExcel_Settings::getLibXmlLoaderOptions());  //~ http://schemas.openxmlformats.org/spreadsheetml/2006/main");
-                    if (isset($xmlStrings) && isset($xmlStrings->si)) {
-                        foreach ($xmlStrings->si as $val) {
-                            if (isset($val->t)) {
-                                $sharedStrings[] = PHPExcel_Shared_String::ControlCharacterOOXML2PHP((string) $val->t);
-                            } elseif (isset($val->r)) {
-                                $sharedStrings[] = $this->parseRichText($val);
+                    if($xpath) {
+                        $xmlStrings = simplexml_load_string($this->securityScan($this->getFromZipArchive($zip, "$dir/$xpath[Target]")), 'SimpleXMLElement', PHPExcel_Settings::getLibXmlLoaderOptions());  //~ http://schemas.openxmlformats.org/spreadsheetml/2006/main");
+                        if (isset($xmlStrings) && isset($xmlStrings->si)) {
+                            foreach ($xmlStrings->si as $val) {
+                                if (isset($val->t)) {
+                                    $sharedStrings[] = PHPExcel_Shared_String::ControlCharacterOOXML2PHP((string) $val->t);
+                                } elseif (isset($val->r)) {
+                                    $sharedStrings[] = $this->parseRichText($val);
+                                }
                             }
                         }
                     }
-
                     $worksheets = array();
                     $macros = $customUI = null;
                     foreach ($relsWorkbook->Relationship as $ele) {
